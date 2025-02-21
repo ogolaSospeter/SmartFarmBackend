@@ -102,5 +102,39 @@ def chat(message):
     print(f"Sending reply: {bot_reply['message']}")
     return flask.jsonify(bot_reply)
 
+"""
+This model is responsible for generating generalized tomato crops management and good farming practises.
+It can provide recommendations for various tomato diseases, pests, and diseases, and it can also provide guidance on how to manage the tomatoes in various environments.
+
+"""
+
+def generate_management_practises():
+    _system_instruction = (
+        "As SmartFarmBot, you are a tomato management and good farming practises generator. "
+        "Your goal is to provide accurate, concise, and practical advice on tomato farming. "
+        "Maintain a human-like, simple, and conversational tone. "
+        "Keep responses concise and relevant—avoid lengthy explanations unless absolutely necessary. "
+        "Your  generated content MUST be only for tomatoes farming practices."
+        "Choose the topic yourself without requiring a specific user input. "
+        "Ensure that your responses are practical, simple, and relevant for small scale farmers in Kenya. "
+        "Do NOT generate long paragraphs—keep responses concise and straight to the point, unless where there is need to expound."
+    )
+    
+    try:
+        model = genai.GenerativeModel("gemini-2.0-flash", system_instruction= _system_instruction)
+        response = model.generate_content("Provide a useful tip for tomato farming.")
+        newtext =  response.text if hasattr(response, "text") and response.text else "I'm not sure how to provide a practical tip."
+        return {"message": newtext}
+    except Exception as e:
+        return {"message": f"Error: {str(e)}"}
+    
+@app.route('/managementpractises', methods=['GET'])
+def get_management_practises():
+    print("Generating management practises")
+    print("Generated practices: \n{}".format(generate_management_practises()))
+    return generate_management_practises()
+
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug = False)
