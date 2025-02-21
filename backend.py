@@ -27,7 +27,9 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         "- **Brief (2-line) description**\n"
         "- **Causes (max 2 bullets)**\n"
         "- **Recommended Actions (max 3 bullets)**"
+        "The response must be tailored to reflect the conditions, not generalized."
     )
+
 
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
