@@ -34,7 +34,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
 
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
-        response = model.generate_content(prompt)
+        response = model.generate_content(prompt,system_instruction)
         extracted_text = response.text if hasattr(response, "text") else "Error processing the response."
 
         # Ensure it's not exceeding limits
