@@ -27,7 +27,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         "Provide a **very concise** response with:\n\n"
         "- **Brief (2-line) description -  first indicate the title, 'Brief Description'**\n"
         "- **Causes (max 6 bullets, min 3 bullets)** -- indicate the title, 'Causes'\n"
-        "- **Recommended Actions (max 6 bullets, min 3 bullets)** -- indicate the title, 'Recommended Actions'"
+        "- **Recommended Actions (max 6 bullets, min 3 bullets)** -- indicate the title, 'Recommended Actions'\n"
         
     )
 
