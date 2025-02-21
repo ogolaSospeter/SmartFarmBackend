@@ -76,9 +76,16 @@ def format_recommendations(text):
 
 
 def send_prompt_to_gemini(user_prompt):
+    _system_instruction = (
+        "You are SmartFarmBot, a knowledgeable virtual assistant specialized in Tomato Farming. "
+        "Your goal is to assist tomato farmers with accurate, factual, and practical advice. "
+        "Maintain a human-like, simple, and conversational tone. "
+        "Keep responses concise and relevant—avoid lengthy explanations unless absolutely necessary. "
+        "If a farmer's question is unclear, ask a brief clarification question instead of making assumptions. "
+    )
     print(f"Sending prompt to Gemini AI: {user_prompt}")
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash")
+        model = genai.GenerativeModel("gemini-2.0-flash",system_instruction= _system_instruction)
         response = model.generate_content(user_prompt)
         newtext =  response.text if hasattr(response, "text") and response.text else "I'm not sure how to respond."
         print("The received response was: " + newtext)
