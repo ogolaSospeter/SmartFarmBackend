@@ -14,7 +14,7 @@ genai.configure(api_key=os.getenv('GEMINI_API_KEY'))
 def get_tomato_disease_recommendations(disease, temperature, moisture):
     print(f"Getting recommendations for {disease} with temperature {temperature}°C and moisture {moisture}Hg.")
 
-    system_instruction = (
+    _system_instruction = (
         "You are SmartFarm, an expert in tomato farming. "
         "Your responses MUST be **concise**"
         "No additional explanations, only structured numbered points."
@@ -33,7 +33,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
     )
 
     try:
-        model = genai.GenerativeModel("gemini-2.0-flash",system_instruction)
+        model = genai.GenerativeModel("gemini-2.0-flash", system_instruction= _system_instruction)
         response = model.generate_content(prompt)
         extracted_text = response.text if hasattr(response, "text") else "Error processing the response."
 
