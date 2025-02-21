@@ -17,6 +17,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         "You are SmartFarm, an expert in tomato farming. "
         "Your responses MUST be **concise**, using **no more than 5 bullet points total**. "
         "No additional explanations, only structured bullet points."
+        "Do not use the asteriks, instead, make the text Bold, and use numbered bullets for the infos."
     )
     
     prompt = (
