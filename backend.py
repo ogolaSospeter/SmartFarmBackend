@@ -1,4 +1,5 @@
 import os
+import re
 import google.generativeai as genai  # Correct import
 import flask 
 from flask import request, jsonify
@@ -37,12 +38,13 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         extracted_text = response.text if hasattr(response, "text") else "Error processing the response."
 
         # Ensure it's not exceeding limits
-        extracted_text = "\n".join(extracted_text.split("\n"))  # Keep only first 7 lines
+        extracted_text = "\n".join(extracted_text.split("\n")) 
+        formatted_text = format_recommendations(extracted_text)
 
     except Exception as e:
-        extracted_text = f"Error: {str(e)}"
+        formatted_text = f"Error: {str(e)}"
 
-    return {"recommendations": extracted_text}
+    return {"recommendations": formatted_text }
 
 @app.route('/recommendations/<disease>/<temperature>/<moisture>', methods=['GET'])
 def get_recommendations(disease, temperature, moisture):
@@ -51,6 +53,26 @@ def get_recommendations(disease, temperature, moisture):
     
     recommendations = get_tomato_disease_recommendations(disease, temperature, moisture)
     return flask.jsonify(recommendations)
+
+
+def format_recommendations(text):
+    # Convert **bold text** to <b>bold text</b>
+    formatted_text = re.sub(r"\*\*(.*?)\*\*", r"<b>\1</b>", text)
+
+    # Replace bulleted points (*) with numbered points
+    lines = formatted_text.split("\n")
+    numbered_text = []
+    counter = 1
+
+    for line in lines:
+        if line.strip().startswith("*"):
+            numbered_text.append(f"{counter}. {line.strip()[1:].strip()}")
+            counter += 1
+        else:
+            numbered_text.append(line)
+
+    return "\n".join(numbered_text)
+
 
 
 def send_prompt_to_gemini(user_prompt):
