@@ -15,19 +15,20 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
 
     system_instruction = (
         "You are SmartFarm, an expert in tomato farming. "
-        "Your responses MUST be **concise**, using **no more than 5 bullet points total**. "
-        "No additional explanations, only structured bullet points."
-        "Do not use the asteriks, instead, make the text Bold, and use numbered bullets for the infos."
+        "Your responses MUST be **concise**"
+        "No additional explanations, only structured numbered points."
+        "Do not use the asteriks, instead, make the text Bold, and use numbered list, of 1. 2. 3. etc for the infos."
+        # "The response must be tailored to reflect the conditions, not generalized."
     )
     
     prompt = (
         f"My tomatoes have {disease}. "
         f"The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. "
         "Provide a **very concise** response with:\n\n"
-        "- **Brief (2-line) description**\n"
-        "- **Causes (max 2 bullets)**\n"
-        "- **Recommended Actions (max 3 bullets)**"
-        "The response must be tailored to reflect the conditions, not generalized."
+        "- **Brief (2-line) description -  first indicate the title, 'Brief Description'**\n"
+        "- **Causes (max 6 bullets, min 3 bullets)** -- indicate the title, 'Causes'\n"
+        "- **Recommended Actions (max 6 bullets, min 3 bullets)** -- indicate the title, 'Recommended Actions'"
+        
     )
 
 
