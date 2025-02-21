@@ -118,15 +118,16 @@ def generate_management_practises():
         "Choose the topic yourself without requiring a specific user input. "
         "Ensure that your responses are practical, simple, and relevant for small scale farmers in Kenya. "
         "Do NOT generate long paragraphs—keep responses concise and straight to the point, unless where there is need to expound."
+        "Where necessary, number the points in 1. ,2. ,3. ,"
     )
     
     try:
         model = genai.GenerativeModel("gemini-2.0-flash", system_instruction= _system_instruction)
         response = model.generate_content("Provide a useful tip for tomato farming.")
         newtext =  response.text if hasattr(response, "text") and response.text else "I'm not sure how to provide a practical tip."
-        return {"message": newtext}
+        return {"management_practises": newtext}
     except Exception as e:
-        return {"message": f"Error: {str(e)}"}
+        return {"management_practises": f"Error: {str(e)}"}
     
 @app.route('/managementpractises', methods=['GET'])
 def get_management_practises():
