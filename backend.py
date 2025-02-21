@@ -38,7 +38,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         extracted_text = response.text if hasattr(response, "text") else "Error processing the response."
 
         # Ensure it's not exceeding limits
-        extracted_text = "\n".join(extracted_text.split("\n")[:7])  # Keep only first 7 lines
+        extracted_text = "\n".join(extracted_text.split("\n"))  # Keep only first 7 lines
 
     except Exception as e:
         extracted_text = f"Error: {str(e)}"
