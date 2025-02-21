@@ -18,7 +18,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         "Your responses MUST be **concise**"
         "No additional explanations, only structured numbered points."
         "Do not use the asteriks, instead, make the text Bold, and use numbered list, of 1. 2. 3. etc for the infos."
-        # "The response must be tailored to reflect the conditions, not generalized."
+        "The recommendations in line with the environmental conditions in the response must be tailored to reflect the conditions, not generalized."
     )
     
     prompt = (
@@ -30,7 +30,6 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         "- **Recommended Actions (max 6 bullets, min 3 bullets)** -- indicate the title, 'Recommended Actions'\n"
         
     )
-
 
     try:
         model = genai.GenerativeModel("gemini-2.0-flash")
