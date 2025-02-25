@@ -34,7 +34,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
     )
 
     try:
-        model._system_instruction = _system_instruction
+        model = genai.GenerativeModel("gemini-2.0-flash",system_instruction = _system_instruction)
         response = model.generate_content(prompt)
         extracted_text = response.text if hasattr(response, "text") else "Error processing the response."
 
@@ -89,7 +89,7 @@ def send_prompt_to_gemini(user_id, user_prompt):
 
     # Retrieve or create a chat session for the user
     if user_id not in chat_sessions:
-        model.system_instruction = _system_instruction
+        model = genai.GenerativeModel("gemini-2.0-flash",system_instruction = _system_instruction)
         chat_sessions[user_id] = model.start_chat(history=[])  # New chat session with memory
 
     chat = chat_sessions[user_id]
