@@ -2,3 +2,7 @@ flask
 gunicorn
 python-dotenv
 google-generativeai
+numpy
+tensorflow
+Pillow
+requests
