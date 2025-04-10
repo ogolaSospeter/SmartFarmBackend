@@ -11,12 +11,12 @@ app = flask.Flask(__name__)
 load_dotenv()
 
 # Load EfficientNet model
-model_path = "/efficientnet.tflite"  # Replace with the actual path
+model_path = "efficientnet.tflite"
 interpreter = tf.lite.Interpreter(model_path=model_path)
 interpreter.allocate_tensors()
 
 # Load labels from the text file
-with open('/labels.txt', 'r') as f:
+with open('labels.txt', 'r') as f:
     labels = f.read().splitlines()
 
 # Initialize the Gemini API client
