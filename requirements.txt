@@ -3,7 +3,6 @@ gunicorn
 python-dotenv
 google-generativeai
 numpy
-tflite-runtime
-# tensorflow-cpu
 Pillow
+tensorflow
 requests
