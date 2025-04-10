@@ -8,6 +8,7 @@ import numpy as np
 import tensorflow as tf
 from PIL import Image
 from io import BytesIO
+import cv2
 
 
 app = flask.Flask(__name__)
@@ -157,9 +158,38 @@ def get_management_practises():
     return generate_management_practises()
 
 # Integration of the Model for Image classification.
+
+# Add a simple leaf image validation function
+def is_leaf_image(image_data):
+    # Open the image and convert to RGB
+    image = Image.open(BytesIO(image_data)).convert("RGB")
+    
+    # Convert the image to a numpy array
+    image_array = np.array(image)
+    
+    # Convert to grayscale to focus on structure
+    gray_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2GRAY)
+    
+    # Thresholding to isolate potential leaf structures (simplistic approach)
+    _, thresholded_image = cv2.threshold(gray_image, 120, 255, cv2.THRESH_BINARY)
+    
+    # Count the non-zero pixels (indicating potential leaf structure)
+    non_zero_pixels = np.count_nonzero(thresholded_image)
+    
+    # If there are a sufficient number of "leaf-like" pixels, return True
+    # This threshold may need to be adjusted based on your dataset and what constitutes a "leaf"
+    if non_zero_pixels > 10000:  # Example threshold; adjust as needed
+        return True
+    else:
+        return False
+
 def classify_image(image_data):
     try:
         print("\n\nClassifying image...")
+         # Validate if the image looks like a leaf
+        if not is_leaf_image(image_data):
+            print("Invalid image: Not a leaf image")
+            return "Error: The provided image is not a valid tomato leaf."
     # Preprocess the image to fit EfficientNet input
         image = Image.open(BytesIO(image_data))
         image = image.resize((224, 224))  # EfficientNet expects 224x224 images
@@ -179,7 +209,7 @@ def classify_image(image_data):
 
         # Get the classification result
         output_data = interpreter.get_tensor(output_details[0]['index'])
-        predicted_class = np.argmax(output_data[0])
+        predicted_class = np.argmax(output_data[1])
 
         return labels[predicted_class]  # Return the label of the predicted class
     except Exception as e:
