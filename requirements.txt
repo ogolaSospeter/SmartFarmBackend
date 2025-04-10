@@ -3,6 +3,6 @@ gunicorn
 python-dotenv
 google-generativeai
 numpy
-tensorflow
+tensorflow-cpu
 Pillow
 requests
