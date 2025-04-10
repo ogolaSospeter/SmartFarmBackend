@@ -211,7 +211,7 @@ def classify_image(image_data):
         return labels[predicted_class]  # Return the label of the predicted class
     except Exception as e:
         print("\n\nError in image classification: ", str(e))
-        return "Error in classification"
+        return "Error in classification : " + str(e)
 
 # Endpoint to handle image upload and classify disease
 @app.route('/classify-disease', methods=['POST'])
