@@ -11,7 +11,7 @@ app = flask.Flask(__name__)
 load_dotenv()
 
 # Load EfficientNet model
-model_path = "efficientnet.tflite"
+model_path = "efficientnetmodel.tflite"
 interpreter = tf.lite.Interpreter(model_path=model_path)
 interpreter.allocate_tensors()
 
