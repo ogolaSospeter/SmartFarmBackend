@@ -4,7 +4,10 @@ import google.generativeai as genai  # Correct import
 import flask 
 from flask import request, jsonify
 from dotenv import load_dotenv
+import numpy as np
 import tensorflow as tf
+from PIL import Image
+from io import BytesIO
 
 
 app = flask.Flask(__name__)
