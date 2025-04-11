@@ -5,6 +5,7 @@ import flask
 from flask import request, jsonify
 from dotenv import load_dotenv
 import numpy as np
+import requests
 import tensorflow as tf
 from PIL import Image
 from io import BytesIO
@@ -18,6 +19,8 @@ load_dotenv()
 model_path = "efficientnetmodel.tflite"
 interpreter = tf.lite.Interpreter(model_path=model_path)
 interpreter.allocate_tensors()
+
+PLANTNET_API_KEY = os.getenv('PLANTNET_API_KEY')
 
 # Load labels from the text file
 with open('labels.txt', 'r') as f:
@@ -155,61 +158,80 @@ def get_management_practises():
 
 # Integration of the Model for Image classification.
 
-# Add a simple leaf image validation function
-def is_leaf_image(image_data):
-    # Open the image and convert to RGB
-    image = Image.open(BytesIO(image_data)).convert("RGB")
-    
-    # Convert the image to a numpy array
-    image_array = np.array(image)
-    
-    # Convert to grayscale to focus on structure
-    gray_image = cv2.cvtColor(image_array, cv2.COLOR_RGB2GRAY)
-    
-    # Thresholding to isolate potential leaf structures (simplistic approach)
-    _, thresholded_image = cv2.threshold(gray_image, 120, 255, cv2.THRESH_BINARY)
-    
-    # Count the non-zero pixels (indicating potential leaf structure)
-    non_zero_pixels = np.count_nonzero(thresholded_image)
-    
-    # If there are a sufficient number of "leaf-like" pixels, return True
-    # This threshold may need to be adjusted based on your dataset and what constitutes a "leaf"
-    if non_zero_pixels > 10000:  # Example threshold; adjust as needed
-        return True
+@app.route("/verify_leaf", methods=["POST"])
+def verify_leaf():
+    image_file = request.files.get("image")
+    if not image_file:
+        return jsonify({"error": "No image uploaded"}), 400
+
+    # Save image temporarily
+    temp_image_path = "temp_image.jpg"
+    image_file.save(temp_image_path)
+
+    # Send to PlantNet
+    with open(temp_image_path, "rb") as img:
+        files = {'images': img}
+        data = {
+            "organs": "leaf",
+            "include-related-images": "false"
+        }
+
+        response = requests.post(
+            f"https://my-api.plantnet.org/v2/identify/all?api-key={PLANTNET_API_KEY}",
+            files=files,
+            data=data
+        )
+
+    os.remove(temp_image_path)  # cleanup
+
+    if response.status_code != 200:
+        return jsonify({"error": "PlantNet API failed", "status": response.status_code}), 500
+
+    result = response.json()
+
+    # Check if there is any valid plant match
+    suggestions = result.get("results", [])
+    if not suggestions:
+        return jsonify({"is_leaf": False})
+
+    top_suggestion = suggestions[0]
+    score = top_suggestion.get("score", 0)
+
+    # You can adjust threshold depending on your strictness
+    if score > 0.5:
+        return jsonify({"is_leaf": True})
     else:
-        return False
+        return jsonify({"is_leaf": False})
+
 
 def classify_image(image_data):
     try:
         print("\n\nClassifying image...")
          # Validate if the image looks like a leaf
-        if not is_leaf_image(image_data):
-            print("Invalid image: Not a leaf image")
-            return "Error: The provided image is not a valid tomato leaf."
-        else:
-        # Preprocess the image to fit EfficientNet input
-            image = Image.open(BytesIO(image_data))
-            image = image.resize((224, 224))  # EfficientNet expects 224x224 images
-            image = np.array(image).astype(np.float32)
-            image = np.expand_dims(image, axis=0)
-            # Normalize the image (efficientnet expects this preprocessing)
-            image = image / 255.0
-            # Get model input details
-            input_details = interpreter.get_input_details()
-            output_details = interpreter.get_output_details()
-            print("\n\nInput details: ", input_details)
-            print("\n\nOutput details: ", output_details)
+        
+    # Preprocess the image to fit EfficientNet input
+        image = Image.open(BytesIO(image_data))
+        image = image.resize((224, 224))  # EfficientNet expects 224x224 images
+        image = np.array(image).astype(np.float32)
+        image = np.expand_dims(image, axis=0)
+        # Normalize the image (efficientnet expects this preprocessing)
+        image = image / 255.0
+        # Get model input details
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+        print("\n\nInput details: ", input_details)
+        print("\n\nOutput details: ", output_details)
 
-            # Set the input tensor
-            interpreter.set_tensor(input_details[0]['index'], image)
-            interpreter.invoke()
+        # Set the input tensor
+        interpreter.set_tensor(input_details[0]['index'], image)
+        interpreter.invoke()
 
-            # Get the classification result
-            output_data = interpreter.get_tensor(output_details[0]['index'])
-            print("\n\nOutput data: ", output_data)
-            predicted_class = np.argmax(output_data[0])
+        # Get the classification result
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+        print("\n\nOutput data: ", output_data)
+        predicted_class = np.argmax(output_data[0])
 
-            return labels[predicted_class]  # Return the label of the predicted class
+        return labels[predicted_class]  # Return the label of the predicted class
     except Exception as e:
         print("\n\nError in image classification: ", str(e))
         return "Error in classification : " + str(e)
