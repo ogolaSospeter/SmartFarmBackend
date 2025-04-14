@@ -9,7 +9,7 @@ import requests
 import tensorflow as tf
 from PIL import Image
 from io import BytesIO
-import cv2
+
 
 
 app = flask.Flask(__name__)
@@ -40,7 +40,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
         "The recommendations in line with the environmental conditions in the response must be tailored to reflect the conditions, not generalized."
     )
     
-    prompt = (
+    train = (
         f"My tomatoes have {disease}. "
         f"The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. "
         "Provide a **very concise** response with:\n\n"
@@ -52,7 +52,7 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
 
     try:
         model = genai.GenerativeModel("gemini-2.0-flash",system_instruction = _system_instruction)
-        response = model.generate_content(prompt)
+        response = model.generate_content(train)
         extracted_text = response.text if hasattr(response, "text") else "Error processing the response."
 
         # Ensure it's not exceeding limits
@@ -85,7 +85,6 @@ def format_recommendations(text):
             counter += 1
         else:
             numbered_text.append(line)
-
     return "\n".join(numbered_text)
 
 # Create a chat session (this maintains memory across interactions)
@@ -153,9 +152,7 @@ def generate_management_practises():
     
 @app.route('/managementpractises', methods=['GET'])
 def get_management_practises():
-  
     return generate_management_practises()
-
 # Integration of the Model for Image classification.
 
 @app.route("/verify_leaf", methods=["POST"])
@@ -182,9 +179,12 @@ def verify_leaf():
             data=data
         )
 
+        print("The response from the Verify Image: " +response)
+
     os.remove(temp_image_path)  # cleanup
 
     if response.status_code != 200:
+        print("PlantNet API failed")
         return jsonify({"error": "PlantNet API failed", "status": response.status_code}), 500
 
     result = response.json()
@@ -202,7 +202,6 @@ def verify_leaf():
         return jsonify({"is_leaf": True})
     else:
         return jsonify({"is_leaf": False})
-
 
 def classify_image(image_data):
     try:
@@ -252,14 +251,11 @@ def classify_disease():
         predicted_disease = classify_image(image_data)
         print(f"\n\nPredicted disease: {predicted_disease}")
 
-        return jsonify({"predicted_disease": predicted_disease})
+        return jsonify({"predicted_disease": predicted_disease}),200
 
     except Exception as e:
         print("An error has occured: ", str(e))
         return jsonify({"error": str(e)}), 500
-
-
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug = False)
