@@ -177,7 +177,8 @@ def verify_leaf():
                 f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
                 files=files,
                 data=data,
-                headers=headers
+                headers=headers,
+                timeout=100
             )
 
         os.remove(temp_image_path)  # Cleanup
