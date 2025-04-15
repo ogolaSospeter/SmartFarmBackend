@@ -174,17 +174,16 @@ def verify_leaf():
     with open(temp_image_path, "rb") as img:
         files = {'images': img}
         data = {
-            "organs": "auto",
+            'organs': 'auto',
         }
         headers = {
-            "Accept":"application/json"
+            'Accept':'application/json'
         }
 
         response = requests.post(
             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
             files=files,
             data=data,
-            timeout = 600,
             headers=headers
         )
 
