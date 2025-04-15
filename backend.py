@@ -196,6 +196,7 @@ def verify_leaf():
 
     top_suggestion = suggestions[0]
     score = top_suggestion.get("score", 0)
+    print("The plant score: " + str(score))
 
     # You can adjust threshold depending on your strictness
     if score > 0.5:
@@ -207,7 +208,6 @@ def classify_image(image_data):
     try:
         print("\n\nClassifying image...")
          # Validate if the image looks like a leaf
-        
     # Preprocess the image to fit EfficientNet input
         image = Image.open(BytesIO(image_data))
         image = image.resize((224, 224))  # EfficientNet expects 224x224 images
