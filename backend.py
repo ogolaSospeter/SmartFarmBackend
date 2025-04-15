@@ -162,12 +162,6 @@ def verify_leaf():
 
     # Save image temporarily
     temp_image_path = "temp_image.jpg"
- 
-    # Resize before saving
-    image = Image.open(image_file)
-    image.thumbnail((800, 800))  # Resize to max 800x800
-    image.save(temp_image_path)
-
     image_file.save(temp_image_path)
 
     # Send to PlantNet
