@@ -173,10 +173,10 @@ def verify_leaf():
     # Send to PlantNet
     with open(temp_image_path, "rb") as img:
         files = {'images': img}
-        # data = {
-        #     "organs": "leaf",
+        data = {
+            "organs": "auto",
         #     "include-related-images": "false"
-        # }
+        }
 
         response = requests.post(
             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
