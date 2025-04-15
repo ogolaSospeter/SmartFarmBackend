@@ -217,9 +217,10 @@ def verify_leaf():
             "top_score": top_score
         })
 
-    except Exception as e:
-        print(f"Exception: {e}")
-        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+    except requests.exceptions.Timeout:
+        return jsonify({"is_leaf": False, "reason": "PlantNet API timed out"}), 500
+    except requests.exceptions.RequestException as e:
+        return jsonify({"is_leaf": False, "reason": f"API error: {str(e)}"}), 500
 # @app.route("/verify_leaf", methods=["POST"])
 # def verify_leaf():
 #     image_file = request.files.get("image")
