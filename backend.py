@@ -19,6 +19,7 @@ interpreter = tf.lite.Interpreter(model_path=model_path)
 interpreter.allocate_tensors()
 
 PLANTNET_API_KEY = os.getenv('PLANTNET_API_KEY')
+PROJECT="all"
 
 # Load labels from the text file
 with open('labels.txt', 'r') as f:
@@ -178,7 +179,7 @@ def verify_leaf():
         }
 
         response = requests.post(
-            f"https://my-api.plantnet.org/v2/identify/all?api-key={PLANTNET_API_KEY}",
+            f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
             files=files,
             data=data,
             timeout = 600
