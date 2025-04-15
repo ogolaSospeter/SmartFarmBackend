@@ -176,12 +176,16 @@ def verify_leaf():
         data = {
             "organs": "auto",
         }
+        headers = {
+            "Accept":"application/json"
+        }
 
         response = requests.post(
             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
             files=files,
             data=data,
-            timeout = 600
+            timeout = 600,
+            headers=headers
         )
 
         print("The response from the Verify Image: " +response)
@@ -198,16 +202,8 @@ def verify_leaf():
     suggestions = result.get("results", [])
     if not suggestions:
         return jsonify({"is_leaf": False})
-
-    top_suggestion = suggestions[0]
-    score = top_suggestion.get("score", 0)
-    print("The plant score: " + str(score))
-
-    # You can adjust threshold depending on your strictness
-    if score > 0.5:
-        return jsonify({"is_leaf": True})
     else:
-        return jsonify({"is_leaf": False})
+        return jsonify({"is_leaf": True})
 
 def classify_image(image_data):
     try:
