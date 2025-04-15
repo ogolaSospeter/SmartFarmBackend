@@ -175,12 +175,12 @@ def verify_leaf():
         files = {'images': img}
         data = {
             "organs": "auto",
-        #     "include-related-images": "false"
         }
 
         response = requests.post(
             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
             files=files,
+            data=data,
             timeout = 600
         )
 
