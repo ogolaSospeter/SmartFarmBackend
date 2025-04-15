@@ -180,7 +180,8 @@ def verify_leaf():
         response = requests.post(
             f"https://my-api.plantnet.org/v2/identify/all?api-key={PLANTNET_API_KEY}",
             files=files,
-            data=data
+            data=data,
+            timeout = 60
         )
 
         print("The response from the Verify Image: " +response)
