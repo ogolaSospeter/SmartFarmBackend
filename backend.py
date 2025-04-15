@@ -173,15 +173,14 @@ def verify_leaf():
     # Send to PlantNet
     with open(temp_image_path, "rb") as img:
         files = {'images': img}
-        data = {
-            "organs": "leaf",
-            "include-related-images": "false"
-        }
+        # data = {
+        #     "organs": "leaf",
+        #     "include-related-images": "false"
+        # }
 
         response = requests.post(
             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
             files=files,
-            data=data,
             timeout = 600
         )
 
@@ -191,7 +190,7 @@ def verify_leaf():
 
     if response.status_code != 200:
         print("PlantNet API failed")
-        return jsonify({"error": "PlantNet API failed", "status": response.status_code}), 500
+        return jsonify({"error": "PlantNet API failed", "status": response.raw}), 500
 
     result = response.json()
 
