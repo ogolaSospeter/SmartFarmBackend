@@ -154,6 +154,8 @@ def get_management_practises():
     return generate_management_practises()
 # Integration of the Model for Image classification.
 
+
+
 @app.route("/verify_leaf", methods=["POST"])
 def verify_leaf():
     image_file = request.files.get("image")
@@ -164,39 +166,102 @@ def verify_leaf():
     temp_image_path = "temp_image.jpg"
     image_file.save(temp_image_path)
 
-    # Send to PlantNet
-    with open(temp_image_path, "rb") as img:
-        files = {'images': img}
-        data = {
-            'organs': 'auto',
-        }
-        headers = {
-            'Accept':'application/json'
-        }
+    try:
+        # Send to PlantNet
+        with open(temp_image_path, "rb") as img:
+            files = {'images': img}
+            data = {'organs': 'auto'}
+            headers = {'Accept': 'application/json'}
 
-        response = requests.post(
-            f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
-            files=files,
-            data=data,
-            headers=headers
-        )
+            response = requests.post(
+                f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
+                files=files,
+                data=data,
+                headers=headers
+            )
 
-        print("The response from the Verify Image: " +response)
+        os.remove(temp_image_path)  # Cleanup
 
-    os.remove(temp_image_path)  # cleanup
+        if response.status_code != 200:
+            print("PlantNet API failed")
+            return jsonify({"error": "PlantNet API failed", "status": response.status_code}), 500
 
-    if response.status_code != 200:
-        print("PlantNet API failed")
-        return jsonify({"error": "PlantNet API failed", "status": response.raw}), 500
+        result = response.json()
 
-    result = response.json()
+        # Extract predictions
+        predicted_organs = result.get("predictedOrgans", [])
+        suggestions = result.get("results", [])
 
-    # Check if there is any valid plant match
-    suggestions = result.get("results", [])
-    if not suggestions:
-        return jsonify({"is_leaf": False})
-    else:
-        return jsonify({"is_leaf": True})
+        if not predicted_organs:
+            return jsonify({"is_leaf": False, "reason": "No organs predicted"})
+
+        organ = predicted_organs[0].get("organ", "unknown")
+        organ_score = predicted_organs[0].get("score", 0.0)
+
+        if organ not in ["leaf", "scan"]:
+            return jsonify({"is_leaf": False, "reason": f"Detected organ is {organ}"}), 200
+
+        if not suggestions:
+            return jsonify({"is_leaf": False, "reason": "No prediction results found"})
+
+        top_score = suggestions[0].get("score", 0.0)
+
+        # You can adjust the confidence threshold
+        is_leaf = top_score > 0.05 and organ_score > 0.3
+
+        return jsonify({
+            "is_leaf": is_leaf,
+            "organ": organ,
+            "organ_score": organ_score,
+            "top_score": top_score
+        })
+
+    except Exception as e:
+        print(f"Exception: {e}")
+        return jsonify({"error": "Internal server error", "details": str(e)}), 500
+# @app.route("/verify_leaf", methods=["POST"])
+# def verify_leaf():
+#     image_file = request.files.get("image")
+#     if not image_file:
+#         return jsonify({"error": "No image uploaded"}), 400
+
+#     # Save image temporarily
+#     temp_image_path = "temp_image.jpg"
+#     image_file.save(temp_image_path)
+
+#     # Send to PlantNet
+#     with open(temp_image_path, "rb") as img:
+#         files = {'images': img}
+#         data = {
+#             'organs': 'auto',
+#         }
+#         headers = {
+#             'Accept':'application/json'
+#         }
+
+#         response = requests.post(
+#             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
+#             files=files,
+#             data=data,
+#             headers=headers
+#         )
+
+#         print("The response from the Verify Image: " +response)
+
+#     os.remove(temp_image_path)  # cleanup
+
+#     if response.status_code != 200:
+#         print("PlantNet API failed")
+#         return jsonify({"error": "PlantNet API failed", "status": response.raw}), 500
+
+#     result = response.json()
+
+#     # Check if there is any valid plant match
+#     suggestions = result.get("results", [])
+#     if not suggestions:
+#         return jsonify({"is_leaf": False})
+#     else:
+#         return jsonify({"is_leaf": True})
 
 def classify_image(image_data):
     try:
