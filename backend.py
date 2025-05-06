@@ -9,6 +9,7 @@ import requests
 import tensorflow as tf
 from PIL import Image
 from io import BytesIO
+from tensorflow.keras.preprocessing import image
 
 app = flask.Flask(__name__)
 load_dotenv()
@@ -154,56 +155,13 @@ def get_management_practises():
     return generate_management_practises()
 # Integration of the Model for Image classification.
 
-# @app.route("/verify_leaf", methods=["POST"])
-# def verify_leaf():
-#     image_file = request.files.get("image")
-#     if not image_file:
-#         return jsonify({"error": "No image uploaded"}), 400
-
-#     # Save image temporarily
-#     temp_image_path = "temp_image.jpg"
-#     image_file.save(temp_image_path)
-
-#     # Send to PlantNet
-#     with open(temp_image_path, "rb") as img:
-#         files = {'images': img}
-#         data = {
-#             'organs': 'auto',
-#         }
-#         headers = {
-#             'Accept':'application/json'
-#         }
-
-#         response = requests.post(
-#             f"https://my-api.plantnet.org/v2/identify/{PROJECT}?api-key={PLANTNET_API_KEY}",
-#             files=files,
-#             data=data,
-#             headers=headers
-#         )
-
-#         print("The response from the Verify Image: " +response)
-
-#     os.remove(temp_image_path)  # cleanup
-
-#     if response.status_code != 200:
-#         print("PlantNet API failed")
-#         return jsonify({"error": "PlantNet API failed", "status": response.raw}), 500
-
-#     result = response.json()
-
-#     # Check if there is any valid plant match
-#     suggestions = result.get("results", [])
-#     if not suggestions:
-#         return jsonify({"is_leaf": False})
-#     else:
-#         return jsonify({"is_leaf": True})
 
 def classify_image(image_data):
     try:
         print("\n\nClassifying image...")
-         # Validate if the image looks like a leaf
+  
     # Preprocess the image to fit EfficientNet input
-        image = Image.open(BytesIO(image_data))
+        image = Image.open(BytesIO(image_data)).convert('RGB')
         image = image.resize((224, 224))  # EfficientNet expects 224x224 images
         image = np.array(image).astype(np.float32)
         image = np.expand_dims(image, axis=0)
