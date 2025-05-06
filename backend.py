@@ -161,9 +161,9 @@ def classify_image(image_data):
         print("\n\nClassifying image...")
     # Preprocess the image to fit EfficientNet input
         image = Image.open(BytesIO(image_data)).convert("RGB")
-        # image = image.resize((224, 224))  # EfficientNet expects 224x224 images
-        # image = np.array(image).astype(np.float32)
-        # image = np.expand_dims(image, axis=0)
+        image = image.resize((224, 224))  # EfficientNet expects 224x224 images
+        image = np.array(image).astype(np.float32)
+        image = np.expand_dims(image, axis=0)
         # # Normalize the image (efficientnet expects this preprocessing)
         # image = image / 255.0
         # Get model input details
