@@ -159,14 +159,13 @@ def get_management_practises():
 def classify_image(image_data):
     try:
         print("\n\nClassifying image...")
-  
     # Preprocess the image to fit EfficientNet input
         image = Image.open(BytesIO(image_data)).convert("RGB")
-        image = image.resize((224, 224))  # EfficientNet expects 224x224 images
-        image = np.array(image).astype(np.float32)
-        image = np.expand_dims(image, axis=0)
-        # Normalize the image (efficientnet expects this preprocessing)
-        image = image / 255.0
+        # image = image.resize((224, 224))  # EfficientNet expects 224x224 images
+        # image = np.array(image).astype(np.float32)
+        # image = np.expand_dims(image, axis=0)
+        # # Normalize the image (efficientnet expects this preprocessing)
+        # image = image / 255.0
         # Get model input details
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
