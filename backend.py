@@ -181,16 +181,10 @@ def classify_image(image_data):
 
         interpreter.set_tensor(input_details[0]['index'], image_np)
         interpreter.invoke()
-        pre_output = interpreter.get_tensor(input_details[0]['index'])[0]
-        print(pre_output)
-        output_details = interpreter.get_output_details()
-        print(output_details)
-        print(output_details[0]['index'])
-        print(output_details[0]['shape'])
-        print(output_details[0]['dtype'])
-        print(output_details[0]['quantization'])
-        print(output_details[0]['quantization_parameters'])
-        output_data = interpreter.get_tensor(output_details[0]['index'])[0]
+        pre_output = interpreter.get_tensor(output_details[0]['index'])
+        print(f"Pre-processed output: {pre_output}")
+        output_data = pre_output[0]
+        # output_data = interpreter.get_tensor(output_details[0]['index'])[0]
         predicted_class = int(np.argmax(output_data))
         confidence = float(output_data[predicted_class])
 
