@@ -153,62 +153,57 @@ def generate_management_practises():
 @app.route('/managementpractises', methods=['GET'])
 def get_management_practises():
     return generate_management_practises()
-
+# Integration of the Model for Image classification.
 
 def classify_image(image_data):
     try:
-        print("\nClassifying image...")
+        print("\n\nClassifying image...")
+        print("Image data:", image_data)
+        print("Image type:", type(image_data))
+        print("Image data length:", len(image_data))
+        print("Image data type:", type(image_data))
+        print("Image data length:", len(image_data))
+    
 
-        # Load and preprocess image
+        # Load and preprocess the image
         image = Image.open(BytesIO(image_data)).convert("RGB")
-        image = image.resize((224, 224))
-        image_np = np.array(image).astype(np.float32) / 255.0
-        image_np = np.expand_dims(image_np, axis=0)
+        image = image.resize((224, 224))  # EfficientNet expects 224x224
+        image_np = np.array(image)
 
+        # Get model input details
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
 
-        if input_details[0]['dtype'] == np.uint8:
-            image_np = (image_np * 255).astype(np.uint8)
+        input_dtype = input_details[0]['dtype']
+        print(f"\nModel expects input type: {input_dtype}")
 
+        # Normalize or convert to uint8 depending on model input type
+        if input_dtype == np.float32:
+            image_np = (image_np.astype(np.float32) / 255.0)  # Normalize to [0, 1] for float32
+
+        elif input_dtype == np.uint8:
+            image_np = image_np.astype(np.uint8)
+        else:
+            raise ValueError(f"Unsupported input type: {input_dtype}")
+        # Add batch dimension
+        image_np = np.expand_dims(image_np, axis=0)
+
+        # Set the input tensor
         interpreter.set_tensor(input_details[0]['index'], image_np)
         interpreter.invoke()
 
-        # Get output tensor and flatten if necessary
+        # Get output
         output_data = interpreter.get_tensor(output_details[0]['index'])
-        output_data = np.squeeze(output_data)
+        print("\nOutput data:", output_data)
 
-        # Print all class predictions
-        print("\nClass Confidence Scores:")
-        class_scores = []
-        for i, score in enumerate(output_data):
-            class_name = labels[i] if i < len(labels) else f"Class {i}"
-            print(f"{class_name}: {score * 100:.2f}%")
-            class_scores.append({
-                "class_index": i,
-                "class_name": class_name,
-                "confidence": float(score)
-            })
+        predicted_class = int(np.argmax(output_data[0]))
+        print("Predicted class index:", predicted_class)
 
-        # Get top class
-        predicted_class = int(np.argmax(output_data))
-        top_class = class_scores[predicted_class]
-
-        print(f"\nPredicted class: {top_class['class_name']} (index {predicted_class})")
-        print(f"Confidence: {top_class['confidence'] * 100:.2f}%")
-
-        return {
-            "top_prediction": top_class,
-            "all_predictions": class_scores
-        }
-
+        return labels[predicted_class] if 0 <= predicted_class < len(labels) else "Unknown"
+    
     except Exception as e:
-        print("Error in classification:", str(e))
-        return {
-            "class_name": "Error",
-            "error": str(e)
-        }
-
+        print("\nError in image classification:", str(e))
+        return "Error in classification: " + str(e)
 
 
 # def classify_image(image_data):
