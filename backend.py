@@ -163,12 +163,14 @@ output_details = interpreter.get_output_details()
 # ✅ Load labels from labels.txt
 with open("labels.txt", "r") as f:
     class_names = [line.strip() for line in f.readlines()]
-def classify_image(image_data):
+
+def classify_image(fileName):
     try:
         print("\n\nClassifying image...")
+        print("Image data:", fileName)
 
-        # Preprocess the image
-        image = Image.open(BytesIO(image_data)).convert("RGB")
+        image = Image.open(fileName).convert("RGB")
+        print("Image loaded:", image)
         image = image.resize((224, 224))
         image = np.array(image).astype(np.float32) / 255.0
         image = np.expand_dims(image, axis=0)
@@ -196,11 +198,11 @@ def classify_image(image_data):
         print("\n\nError in image classification: ", str(e))
         return {"error": str(e)}
 
-# def classify_image(image_data):
+# def classify_image(fileName):
 #     try:
 #         print("\n\nClassifying image...")
 #     # Preprocess the image to fit EfficientNet input
-#         image = Image.open(BytesIO(image_data)).convert("RGB")
+#         image = Image.open(BytesIO(fileName)).convert("RGB")
 #         image = image.resize((224, 224))  # EfficientNet expects 224x224 images
 #         image = np.array(image).astype(np.float32)
 #         image = np.expand_dims(image, axis=0)
@@ -236,10 +238,14 @@ def classify_disease():
             return jsonify({"error": "No image file provided"}), 400
         
         image_file = request.files['image']
-        image_data = image_file.read()
+        file_name = f"/tmp/{os.urandom(4).hex()}.jpg"
+        image_file.save(file_name)
+        print("\n\nImage saved to: ", file_name)
+
+        #convert the image to a PIL Image
 
         # Classify the image
-        predicted_disease = classify_image(image_data)
+        predicted_disease = classify_image(file_name)
         print(f"\n\nPredicted disease: {predicted_disease}")
 
         return jsonify({"predicted_disease": predicted_disease}),200
