@@ -155,56 +155,50 @@ def get_management_practises():
     return generate_management_practises()
 # Integration of the Model for Image classification.
 
-def classify_image(image_data):
+def classify_image(image):
     try:
         print("\n\nClassifying image...")
-        print("Image data:", image_data)
-        print("Image type:", type(image_data))
-        print("Image data length:", len(image_data))
-        print("Image data type:", type(image_data))
-        print("Image data length:", len(image_data))
-    
+        print("Image type:", type(image))
 
-        # Load and preprocess the image
-        image = Image.open(BytesIO(image_data)).convert("RGB")
+        # Convert image to RGB and resize to the expected size
+        image = image.convert("RGB")
         image = image.resize((224, 224))  # EfficientNet expects 224x224
         image_np = np.array(image)
 
-        # Get model input details
+        # Retrieve model input and output details
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
-
         input_dtype = input_details[0]['dtype']
-        print(f"\nModel expects input type: {input_dtype}")
+        print(f"Model expects input type: {input_dtype}")
 
-        # Normalize or convert to uint8 depending on model input type
+        # Normalize/convert based on model input type
         if input_dtype == np.float32:
-            image_np = (image_np.astype(np.float32) / 255.0)  # Normalize to [0, 1] for float32
-
+            image_np = image_np.astype(np.float32) / 255.0  # Normalize to [0, 1]
         elif input_dtype == np.uint8:
             image_np = image_np.astype(np.uint8)
         else:
             raise ValueError(f"Unsupported input type: {input_dtype}")
+
         # Add batch dimension
         image_np = np.expand_dims(image_np, axis=0)
 
-        # Set the input tensor
+        # Run inference: set input tensor and invoke interpreter
         interpreter.set_tensor(input_details[0]['index'], image_np)
         interpreter.invoke()
 
-        # Get output
+        # Retrieve and print output data
         output_data = interpreter.get_tensor(output_details[0]['index'])
-        print("\nOutput data:", output_data)
+        print("Output data:", output_data)
 
+        # Determine the predicted class from the output tensor
         predicted_class = int(np.argmax(output_data[0]))
         print("Predicted class index:", predicted_class)
 
         return labels[predicted_class] if 0 <= predicted_class < len(labels) else "Unknown"
-    
-    except Exception as e:
-        print("\nError in image classification:", str(e))
-        return "Error in classification: " + str(e)
 
+    except Exception as e:
+        print("Error in image classification:", str(e))
+        return "Error in classification: " + str(e)
 
 # def classify_image(image_data):
 #     try:
