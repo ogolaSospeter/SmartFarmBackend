@@ -173,7 +173,7 @@ def classify_image(image_data):
 
         # Normalize or convert to uint8 depending on model input type
         if input_dtype == np.float32:
-            image_np = (image_np.astype(np.float32) / 127.5) - 1.0  # Normalize to [-1, 1]
+            image_np = (image_np.astype(np.float32) / 255.0)  # Normalize to [0, 1] for float32
 
         elif input_dtype == np.uint8:
             image_np = image_np.astype(np.uint8)
