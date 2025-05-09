@@ -153,48 +153,53 @@ def generate_management_practises():
 @app.route('/managementpractises', methods=['GET'])
 def get_management_practises():
     return generate_management_practises()
-# Integration of the Model for Image classification.
+
+
 def classify_image(image_data):
     try:
         print("\nClassifying image...")
 
-        # Load image and convert to RGB
+        # Load and preprocess image
         image = Image.open(BytesIO(image_data)).convert("RGB")
         image = image.resize((224, 224))
-
-        # Convert image to numpy array
-        image_np = np.array(image).astype(np.float32)
-
-        # Normalize to [0, 1]
-        image_np /= 255.0
-
-        # Add batch dimension
+        image_np = np.array(image).astype(np.float32) / 255.0
         image_np = np.expand_dims(image_np, axis=0)
 
-        # Get input and output tensor details
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
 
-        # Cast if model requires float32 or uint8
         if input_details[0]['dtype'] == np.uint8:
             image_np = (image_np * 255).astype(np.uint8)
 
         interpreter.set_tensor(input_details[0]['index'], image_np)
         interpreter.invoke()
-        pre_output = interpreter.get_tensor(output_details[0]['index'])
-        print(f"Pre-processed output: {pre_output}")
-        output_data = pre_output[0]
-        # output_data = interpreter.get_tensor(output_details[0]['index'])[0]
-        predicted_class = int(np.argmax(output_data))
-        confidence = float(output_data[predicted_class])
 
-        print(f"Predicted class index: {predicted_class}")
-        print(f"Confidence level: {confidence * 100:.2f}%")
+        # Get output tensor and flatten if necessary
+        output_data = interpreter.get_tensor(output_details[0]['index'])
+        output_data = np.squeeze(output_data)
+
+        # Print all class predictions
+        print("\nClass Confidence Scores:")
+        class_scores = []
+        for i, score in enumerate(output_data):
+            class_name = labels[i] if i < len(labels) else f"Class {i}"
+            print(f"{class_name}: {score * 100:.2f}%")
+            class_scores.append({
+                "class_index": i,
+                "class_name": class_name,
+                "confidence": float(score)
+            })
+
+        # Get top class
+        predicted_class = int(np.argmax(output_data))
+        top_class = class_scores[predicted_class]
+
+        print(f"\nPredicted class: {top_class['class_name']} (index {predicted_class})")
+        print(f"Confidence: {top_class['confidence'] * 100:.2f}%")
 
         return {
-            "class_name": labels[predicted_class] if 0 <= predicted_class < len(labels) else "Unknown",
-            "class_index": predicted_class,
-            "confidence": confidence
+            "top_prediction": top_class,
+            "all_predictions": class_scores
         }
 
     except Exception as e:
@@ -203,6 +208,7 @@ def classify_image(image_data):
             "class_name": "Error",
             "error": str(e)
         }
+
 
 
 # def classify_image(image_data):
