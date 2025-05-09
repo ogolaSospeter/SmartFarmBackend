@@ -154,51 +154,53 @@ def generate_management_practises():
 def get_management_practises():
     return generate_management_practises()
 # Integration of the Model for Image classification.
-
 def classify_image(image_data):
     try:
-        print("\n\nClassifying image...")
+        print("\nClassifying image...")
 
-        # Load and preprocess the image
+        # Load image and convert to RGB
         image = Image.open(BytesIO(image_data)).convert("RGB")
-        image = image.resize((224, 224))  # EfficientNet expects 224x224
-        image_np = np.array(image)
+        image = image.resize((224, 224))
 
-        # Get model input details
-        input_details = interpreter.get_input_details()
-        output_details = interpreter.get_output_details()
+        # Convert image to numpy array
+        image_np = np.array(image).astype(np.float32)
 
-        input_dtype = input_details[0]['dtype']
-        print(f"\nModel expects input type: {input_dtype}")
-
-        # Normalize or convert to uint8 depending on model input type
-        if input_dtype == np.float32:
-            image_np = (image_np.astype(np.float32) / 255.0)  # Normalize to [0, 1] for float32
-
-        elif input_dtype == np.uint8:
-            image_np = image_np.astype(np.uint8)
-        else:
-            raise ValueError(f"Unsupported input type: {input_dtype}")
+        # Normalize to [0, 1]
+        image_np /= 255.0
 
         # Add batch dimension
         image_np = np.expand_dims(image_np, axis=0)
 
-        # Set the input tensor
+        # Get input and output tensor details
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+
+        # Cast if model requires float32 or uint8
+        if input_details[0]['dtype'] == np.uint8:
+            image_np = (image_np * 255).astype(np.uint8)
+
         interpreter.set_tensor(input_details[0]['index'], image_np)
         interpreter.invoke()
 
-        # Get output
-        output_data = interpreter.get_tensor(output_details[0]['index'])
-        print("\nOutput data:", output_data)
+        output_data = interpreter.get_tensor(output_details[0]['index'])[0]
+        predicted_class = int(np.argmax(output_data))
+        confidence = float(output_data[predicted_class])
 
-        predicted_class = int(np.argmax(output_data[0]))
-        print("Predicted class index:", predicted_class)
+        print(f"Predicted class index: {predicted_class}")
+        print(f"Confidence level: {confidence * 100:.2f}%")
 
-        return labels[predicted_class] if 0 <= predicted_class < len(labels) else "Unknown"
-    
+        return {
+            "class_name": labels[predicted_class] if 0 <= predicted_class < len(labels) else "Unknown",
+            "class_index": predicted_class,
+            "confidence": confidence
+        }
+
     except Exception as e:
-        print("\nError in image classification:", str(e))
-        return "Error in classification: " + str(e)
+        print("Error in classification:", str(e))
+        return {
+            "class_name": "Error",
+            "error": str(e)
+        }
 
 
 # def classify_image(image_data):
