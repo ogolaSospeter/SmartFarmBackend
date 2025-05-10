@@ -169,8 +169,6 @@ def classify_image(fileName):
         input_details = interpreter.get_input_details()
         output_details = interpreter.get_output_details()
 
-
-
         print("\n\nClassifying image...")
         print("Image data:", fileName)
 
@@ -196,7 +194,7 @@ def classify_image(fileName):
         return {
             "predicted_class": predicted_class,
             "confidence": f"{confidence:.2f}%",
-            "raw_scores": {class_names[i]: f"{score * 100:.2f}%" for i, score in enumerate(output)}
+            # "raw_scores": {class_names[i]: f"{score * 100:.2f}%" for i, score in enumerate(output)}
         }
 
     except Exception as e:
