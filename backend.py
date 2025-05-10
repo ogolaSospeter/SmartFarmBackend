@@ -198,36 +198,6 @@ def classify_image(fileName):
         print("\n\nError in image classification: ", str(e))
         return {"error": str(e)}
 
-# def classify_image(fileName):
-#     try:
-#         print("\n\nClassifying image...")
-#     # Preprocess the image to fit EfficientNet input
-#         image = Image.open(BytesIO(fileName)).convert("RGB")
-#         image = image.resize((224, 224))  # EfficientNet expects 224x224 images
-#         image = np.array(image).astype(np.float32)
-#         image = np.expand_dims(image, axis=0)
-#         # # Normalize the image (efficientnet expects this preprocessing)
-#         # image = image / 255.0
-#         # Get model input details
-#         input_details = interpreter.get_input_details()
-#         output_details = interpreter.get_output_details()
-#         print("\n\nInput details: ", input_details)
-#         print("\n\nOutput details: ", output_details)
-
-#         # Set the input tensor
-#         interpreter.set_tensor(input_details[0]['index'], image)
-#         interpreter.invoke()
-
-#         # Get the classification result
-#         output_data = interpreter.get_tensor(output_details[0]['index'])
-#         print("\n\nOutput data: ", output_data)
-#         predicted_class = np.argmax(output_data[0])
-
-#         return labels[predicted_class]  # Return the label of the predicted class
-#     except Exception as e:
-#         print("\n\nError in image classification: ", str(e))
-#         return "Error in classification : " + str(e)
-
 # Endpoint to handle image upload and classify disease
 @app.route('/classify-disease', methods=['POST'])
 def classify_disease():
