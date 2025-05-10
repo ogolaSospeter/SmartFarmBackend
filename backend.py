@@ -14,10 +14,7 @@ from tensorflow.keras.preprocessing import image
 app = flask.Flask(__name__)
 load_dotenv()
 
-# Load EfficientNet model
-model_path = "efficientnetmodel.tflite"
-interpreter = tf.lite.Interpreter(model_path=model_path)
-interpreter.allocate_tensors()
+
 
 PLANTNET_API_KEY = os.getenv('PLANTNET_API_KEY')
 PROJECT="all"
@@ -156,16 +153,24 @@ def get_management_practises():
 # Integration of the Model for Image classification.
 
 
-# Get model input and output details
-input_details = interpreter.get_input_details()
-output_details = interpreter.get_output_details()
+
 
 # ✅ Load labels from labels.txt
 with open("labels.txt", "r") as f:
     class_names = [line.strip() for line in f.readlines()]
 
 def classify_image(fileName):
-    try:
+    try:# Load EfficientNet model
+        model_path = "efficientnetmodel.tflite"
+        interpreter = tf.lite.Interpreter(model_path=model_path)
+        interpreter.allocate_tensors()
+
+        # Get model input and output details
+        input_details = interpreter.get_input_details()
+        output_details = interpreter.get_output_details()
+
+
+
         print("\n\nClassifying image...")
         print("Image data:", fileName)
 
