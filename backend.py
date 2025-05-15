@@ -62,11 +62,19 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
 
 @app.route('/recommendations/<disease>/<temperature>/<moisture>', methods=['GET'])
 def get_recommendations(disease, temperature, moisture):
-    temperature = float(temperature)
-    moisture = float(moisture)
-    
-    recommendations = get_tomato_disease_recommendations(disease, temperature, moisture)
-    return flask.jsonify(recommendations)
+    # Validate inputs
+    if not disease or not temperature or not moisture:
+        return jsonify({"error": "You must provide disease, temperature, and moisture."}), 400
+    try:
+        temperature = float(temperature)
+        moisture = float(moisture)
+        
+        recommendations = get_tomato_disease_recommendations(disease, temperature, moisture)
+        return flask.jsonify(recommendations)
+    except ValueError:
+        return jsonify({"error": "Temperature and moisture must be numbers."}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 def format_recommendations(text):
     # Convert **bold text** to <b>bold text</b>
