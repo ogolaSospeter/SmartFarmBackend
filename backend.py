@@ -29,23 +29,41 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 
 def get_tomato_disease_recommendations(disease, temperature, moisture):
 
-    _system_instruction = (
-        "You are SmartFarm, an expert in tomato farming. "
-        "Your responses MUST be **concise**"
-        "No additional explanations, only structured numbered points."
-        "Do not use the asteriks, instead, make the text Bold, and use numbered list, of 1. 2. 3. etc for the infos."
-        "The recommendations in line with the environmental conditions in the response must be tailored to reflect the conditions, not generalized."
-    )
-    
-    train = (
-        f"My tomatoes have {disease}. "
-        f"The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. "
-        "Provide a **very concise** response with:\n\n"
-        "- **Brief (2 - 4 line) description -  first indicate the title, 'Brief Description'**\n"
-        "- **Causative Agent **  - State the causativer agent of the disease, whether it is fungi/fungal infection, pests, etc.**\n"
-        "- **Causes (max 6 bullets, min 3 bullets)** -- indicate the title, 'Causes' -- Begin numbering from 1\n"
-        "- **Recommended Actions (max 7 bullets, min 4 bullets)** -- indicate the title, 'Recommended Actions' --  Begin numbering from 1\n" 
-    )
+    if(disease.lower() == "healthy"):
+        _system_instruction = (
+            """
+You are SmartFarm, an expert tomato farming assistant. The user’s tomato plants are currently healthy. Provide a brief yet insightful recommendation. Your response MUST include:
+Brief Status (Is the health sustainable based on temp/moisture?)
+Optimal Ranges (What is ideal temp/moisture vs current values?)
+Preventive Actions (What can the farmer do to keep the plants healthy?)
+Be concise and structured with headings. No fluff. Do not mention diseases. Be helpful and practical.
+            """
+        )
+        train = ("""
+The tomatoes are healthy. The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. Provide a **very concise** response with:\n\n"""
+        "- **Brief Status** - Is the health sustainable based on temp/moisture?\n"
+        "- **Optimal Ranges** - What is ideal temp/moisture vs current values?\n"
+        "- **Preventive Actions** - What can the farmer do to keep the plants healthy?\n"
+        "- **Recommended Actions** - Provide a list of actions to maintain the health of the tomatoes.\n"
+        )
+    else:
+        _system_instruction = (
+            "You are SmartFarm, an expert in tomato farming. "
+            "Your responses MUST be **concise**"
+            "No additional explanations, only structured numbered points."
+            "Do not use the asteriks, instead, make the text Bold, and use numbered list, of 1. 2. 3. etc for the infos."
+            "The recommendations in line with the environmental conditions in the response must be tailored to reflect the conditions, not generalized."
+        )
+        
+        train = (
+            f"My tomatoes have {disease}. "
+            f"The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. "
+            "Provide a **very concise** response with:\n\n"
+            "- **Brief (2 - 4 line) description -  first indicate the title, 'Brief Description'**\n"
+            "- **Causative Agent **  - State the causativer agent of the disease, whether it is fungi/fungal infection, pests, etc.**\n"
+            "- **Causes (max 6 bullets, min 3 bullets)** -- indicate the title, 'Causes' -- Begin numbering from 1\n"
+            "- **Recommended Actions (max 7 bullets, min 4 bullets)** -- indicate the title, 'Recommended Actions' --  Begin numbering from 1\n" 
+        )
 
     try:
         model = genai.GenerativeModel("gemini-2.0-flash",system_instruction = _system_instruction)
@@ -115,7 +133,6 @@ def send_prompt_to_gemini(user_id, user_prompt):
         response = chat.send_message(user_prompt)  # Uses chat session memory
         newtext = response.text if hasattr(response, "text") and response.text else "I'm not sure how to respond."
         
-
     except Exception as e:
         return {"message": f"Error: {str(e)}"}
 
