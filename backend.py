@@ -32,19 +32,28 @@ def get_tomato_disease_recommendations(disease, temperature, moisture):
     if(disease.lower() == "healthy"):
         _system_instruction = (
             """
-You are SmartFarm, an expert tomato farming assistant. The user’s tomato plants are currently healthy. Provide a brief yet insightful recommendation. Your response MUST include:
-Brief Status (Is the health sustainable based on temp/moisture?)
-Optimal Ranges (What is ideal temp/moisture vs current values?)
-Preventive Actions (What can the farmer do to keep the plants healthy?)
-Be concise and structured with headings. No fluff. Do not mention diseases. Be helpful and practical.
+You are SmartFarm, an expert tomato farming assistant.
+The user’s tomato plants are currently healthy.
+Provide a brief yet insightful recommendation. Your responses should be easy to understand, and also tailored to the farmers' conditions
+Do not use the asteriks, instead, make the text Bold, and use numbered list, of 1. 2. 3. etc for the infos.
+The recommendations in line with the environmental conditions in the response must be tailored to reflect the conditions, not generalized.
+You can also make use of the following sites to enrich your response:
+https://www.jica.go.jp/Resource/project/english/kenya/015/materials/c8h0vm0000f7o8cj-att/materials_15.pdf
+https://www.jica.go.jp/Resource/project/english/kenya/015/materials/c8h0vm0000f7o8cj-att/materials_26.pdf
+https://farmersvoiceafrica.org/sites/default/files/2020-12/TOMATO%20PRODUCTION_0.pdf
+https://www.ckl.africa/get-the-most-from-your-tomato-farming/#:~:text=Remove%20the%20seedlings%20from%20the,Water%20well%20but%20not%20excessively.
+https://www.greenlife.co.ke/tomato-farming-for-beginners-planting-growing-and-harvesting/
+
             """
         )
-        train = ("""
+        train = (f"""
 The tomatoes are healthy. The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. Provide a **very concise** response with:\n\n"""
-        "- **Brief Status** - Is the health sustainable based on temp/moisture?\n"
-        "- **Optimal Ranges** - What is ideal temp/moisture vs current values?\n"
-        "- **Preventive Actions** - What can the farmer do to keep the plants healthy?\n"
-        "- **Recommended Actions** - Provide a list of actions to maintain the health of the tomatoes.\n"
+        "- **Brief Status** (2 - 4 line) description - -  first indicate the title, 'Brief Description'**\n"
+        "- **Optimal Ranges** - What is ideal temp/moisture vs current values?.**\n"
+        "- **Preventive Actions**(max 6 bullets, min 4 bullets) or you can use a min of 2 paragraphs and a max of 4 paragraphs** - What can the farmer do to keep the plants healthy?. Begin numbering from 1 if you use bullets\n"
+        "- **Recommended Actions(max 7 bullets, min 4 bullets)**** - Provide a list of actions to maintain the health of the tomatoes. Begin numbering from 1\n"
+        "- **Additional Notes** - Any other relevant information or tips for the farmer. Begin numbering from 1\n"
+        
         )
     else:
         _system_instruction = (
@@ -52,7 +61,14 @@ The tomatoes are healthy. The farm conditions are Temp={temperature}°C, Moistur
             "Your responses MUST be **concise**"
             "No additional explanations, only structured numbered points."
             "Do not use the asteriks, instead, make the text Bold, and use numbered list, of 1. 2. 3. etc for the infos."
+            "All the info you give on a particular disease should not seem to have a predictable pattern. Each response, whether for the same disease or not, should be unique."
             "The recommendations in line with the environmental conditions in the response must be tailored to reflect the conditions, not generalized."
+            """You can also make use of the following sites to enrich your response:
+            1. https://nhb.gov.in/pdf/vegetable/tomato/tom002.pdf
+            2. https://bpb-us-w2.wpmucdn.com/u.osu.edu/dist/9/34289/files/2017/07/DiseaseIDandmanagementA5English-2g74s20.pdf
+            3. 
+
+            """
         )
         
         train = (
@@ -156,12 +172,21 @@ def generate_management_practises():
         "As SmartFarmBot, you are a tomato management and good farming practises generator model. "
         "Your goal is to provide accurate, concise, and practical advice on tomato farming or management. "
         "Maintain a human-like, simple, and conversational tone. "
-        "Keep responses concise and relevant—avoid lengthy explanations unless absolutely necessary. "
+        "Keep responses concise,  but do not also be excessively reserved! and relevant—avoid lengthy explanations unless absolutely necessary. "
         "Your  generated content MUST be only for tomatoes farming practices."
         "Choose the topic yourself without requiring a specific user input. "
         "Ensure that your responses are practical, simple, and relevant for small scale farmers in Kenya. "
-        "Do NOT generate long paragraphs—keep responses concise and straight to the point, unless where there is need to expound."
-        "Where necessary, number the points in 1. ,2. ,3. ,"
+        "Generate medium-length paragraphs—keep responses with understandable and actionable infos, "
+        "Where necessary, number the points in 1. ,2. ,3. or star,"
+        """
+You can also make use of the following sites to enrich your response and to make each response unique, tasty and fully fleshed out:
+https://www.jica.go.jp/Resource/project/english/kenya/015/materials/c8h0vm0000f7o8cj-att/materials_15.pdf
+https://www.jica.go.jp/Resource/project/english/kenya/015/materials/c8h0vm0000f7o8cj-att/materials_26.pdf
+https://farmersvoiceafrica.org/sites/default/files/2020-12/TOMATO%20PRODUCTION_0.pdf
+https://www.ckl.africa/get-the-most-from-your-tomato-farming/#:~:text=Remove%20the%20seedlings%20from%20the,Water%20well%20but%20not%20excessively.
+https://www.greenlife.co.ke/tomato-farming-for-beginners-planting-growing-and-harvesting/
+
+"""
     )
     
     try:
