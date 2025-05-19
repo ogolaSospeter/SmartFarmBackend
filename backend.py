@@ -48,8 +48,8 @@ https://www.greenlife.co.ke/tomato-farming-for-beginners-planting-growing-and-ha
         )
         train = (f"""
 The tomatoes are healthy. The farm conditions are Temp={temperature}°C, Moisture={moisture}Hg. Provide a **very concise** response with:\n\n"""
-        "- **Brief Status** (2 - 4 line) description - -  first indicate the title, 'Brief Description'**\n"
-        "- **Optimal Ranges** - What is ideal temp/moisture vs current values?.**\n"
+        "- **Brief Status**(2 - 4 line) description - -  first indicate the title, 'Brief Status'\n"
+        "- **Optimal Ranges** - What is ideal temp/moisture vs current values?.\n"
         "- **Preventive Actions**(max 6 bullets, min 4 bullets) or you can use a min of 2 paragraphs and a max of 4 paragraphs** - What can the farmer do to keep the plants healthy?. Begin numbering from 1 if you use bullets\n"
         "- **Recommended Actions(max 7 bullets, min 4 bullets)**** - Provide a list of actions to maintain the health of the tomatoes. Begin numbering from 1\n"
         "- **Additional Notes** - Any other relevant information or tips for the farmer. Begin numbering from 1\n"
